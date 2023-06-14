@@ -15,14 +15,30 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration)
 
 
-let text = ''
+let texts = []
+let reply = ''
 
 app.get('/texts', (request, response) => {
-  response.send(text)
+  response.send(texts)
 })
 
-app.post('/simplify', async (request, response) => {
-  console.log('Request to simplify text')
+app.get('/result', (request, response) => {
+  response.send(reply)
+})
+
+app.delete('/texts/delete/:id', (request, response) => {
+  const id = Number(request.params.id)
+  console.log('Deleting note ' + id)
+  texts = texts.filter(text => text.id !== id )
+  console.log(texts)
+  response.status(204).end()
+})
+
+app.post('/simplify/:id', async (request, response) => {
+  const id = Number(request.params.id)
+  console.log('Request to simplify text for ' + id)
+  const text = texts.find(t => t.id === id).content
+
   const chat_completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       temperature: 0.1,
@@ -35,12 +51,15 @@ app.post('/simplify', async (request, response) => {
       // ]
   })
   console.log(chat_completion.data)
-  const reply = chat_completion.data.choices[0].message.content
+  reply = chat_completion.data.choices[0].message.content
   response.send(reply)
 })
 
-app.post('/bullet', async (request, response) => {
-  console.log('Request to bullet point')
+app.post('/bullet/:id', async (request, response) => {
+  const id = Number(request.params.id)
+  console.log('Request to bullet point' + id)
+
+  const text = texts.find(t => t.id === id).content
   const chat_completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     temperature: 0.1,
@@ -50,12 +69,15 @@ app.post('/bullet', async (request, response) => {
     ]
   })
   console.log(chat_completion.data)
-  const reply = chat_completion.data.choices[0].message.content
+  reply = chat_completion.data.choices[0].message.content
   response.send(reply)
 })
 
-app.post('/summarize', async (request, response) => {
-  console.log('Request to summarize')
+app.post('/summarize/:id', async (request, response) => {
+  const id = Number(request.params.id)
+  console.log('Request to summarize' + id)
+
+  const text = texts.find(t => t.id === id).content
   const chat_completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     temperature: 0.1,
@@ -65,12 +87,45 @@ app.post('/summarize', async (request, response) => {
     ]
 })
   console.log(chat_completion.data)
-  const reply = chat_completion.data.choices[0].message.content
+  reply = chat_completion.data.choices[0].message.content
   response.send(reply)
 })
 
+app.post('/connections', async (request, response) => {
+  const connections = request.body.connections
 
-app.post('/texts', (request, response) => {
+  const messages = connections.map(c => texts.find(t => t.id === c))
+  const messagesFormatted = messages.map(m => '"' + m.content + '", ')
+  const last = messagesFormatted.length - 1
+  let m = messagesFormatted[last]
+  m = m.substring(0, m.length - 2) + "."
+  messagesFormatted[last] = m
+  const send = messagesFormatted.join('')
+
+  console.log('Request to connect')
+  console.log(send)
+
+  const prompt = "Find and Number what these articles agree on" 
+  
+  const chat_completion = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    temperature: 0.1,
+    messages: [
+      { role: "system", content: prompt},
+      { role: "user", content: send},
+    ]
+})
+  console.log(chat_completion.data)
+  reply = chat_completion.data.choices[0].message.content
+  response.send(reply)
+  
+})
+const generateId = () => {
+  const maxId = texts.length > 0 ? Math.max(...texts.map(n => n.id)) : 0
+  return maxId + 1
+}
+
+app.post('/addText', (request, response) => {
   const body = request.body
 
     if (!body.content) {
@@ -78,17 +133,20 @@ app.post('/texts', (request, response) => {
             error: 'content missing'
         })
     }
-    // const text = {
-    //   content: body.content,
-    //   id: generateId()
-    // }
-  // texts = texts.concat(text)
-  text = body.content
-  console.log(text)
+    const text = {
+      content: body.content,
+      id: generateId()
+    }
+  texts = texts.concat(text)
+  response.send(body.content)
+  console.log(texts)
 })
 
-app.get('/initial', async (request, response) => {
-    console.log('initial request')
+
+
+// TESTING PURPOSES
+app.get('/test', async (request, response) => {
+    console.log('test request')
     const chat_completion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
@@ -117,11 +175,6 @@ const data = {"id":"chatcmpl-7RACve96jTsMYxAHcZN3F1swFu0kO","object":
 "choices":[{"message":{"role":"assistant","content":"Hello there! As an 
 AI language model, I'm happy to communicate with you. How can I assist 
 you today?"},"finish_reason":"stop","index":0}]}
-
-const generateId = () => {
-  const maxId = texts.length > 0 ? Math.max(...texts.map(n => n.id)) : 0
-  return maxId + 1
-}
 
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1> <a href="/api/notes">click</a>')
