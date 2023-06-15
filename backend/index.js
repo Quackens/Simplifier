@@ -47,9 +47,6 @@ app.post('/simplify/:id', async (request, response) => {
         { role: "system", content: "You will dumb down inputs so less technical knowledge is required to understand, whilst retaining as much information as possible"},
         { role: "user", content: text},
       ]
-      // messages: [
-      //   { role: "user", content: "Hello World"},
-      // ]
   })
   console.log(chat_completion.data)
   reply = chat_completion.data.choices[0].message.content
@@ -93,7 +90,6 @@ app.post('/summarize/:id', async (request, response) => {
 })
 
 const idToString = (list) => {
-  // try {
     const messages = list.map(c => texts.find(t => t.id === c))
     const messagesFormatted = messages.map(m => '"' + m.content + '", ')
     const last = messagesFormatted.length - 1
@@ -181,23 +177,6 @@ app.post('/addText', (request, response) => {
   response.send(body.content)
   console.log(texts)
 })
-
-
-
-// TESTING PURPOSES
-app.get('/test', async (request, response) => {
-    console.log('test request')
-    const chat_completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: "You will turn this text into concise bullet points whilst retaining as much information as possible"},
-          { role: "user", content: text},
-        ]
-    })
-    console.log(chat_completion.data)
-    response.send(chat_completion.data)
-
-  })
 
 const PORT = 3001
 app.listen(PORT, () => {

@@ -8,6 +8,8 @@
   "version": "0.0.1",
   "main": "index.js",
   "devDependencies": {
+    "eslint": "^8.42.0",
+    "eslint-plugin-react": "^7.32.2",
     "nodemon": "^2.0.22"
   },
   "scripts": {
