@@ -2,32 +2,6 @@
 A reading tool designed to simplify / organize / summarize papers or reports
 
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
-
-
-<br />
-<div align="center">
-  <a href="https://github.com/github_username/repo_name">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-<h3 align="center">project_title</h3>
-
-  <p align="center">
-    project_description
-    <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues">Request Feature</a>
-  </p>
-</div>
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -48,10 +22,7 @@ A reading tool designed to simplify / organize / summarize papers or reports
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -59,76 +30,89 @@ A reading tool designed to simplify / organize / summarize papers or reports
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
+<!-- Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description` -->
 ### Built With
-ReactJS and Express
+ReactJS and Express using the OpenAI API
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+To get a local copy up and running follow these simple example steps. Make sure you have the prerequisites listed below.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
+* Node Package Manager (npm) [https://nodejs.org/en/download](https://nodejs.org/en/download). If required, update npm below:
   ```sh
   npm install npm@latest -g
   ```
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
+1. Get an API Key at [https://platform.openai.com/](https://platform.openai.com/)
 2. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/Quackens/Simplifier.git
    ```
-3. Install NPM packages
+   
+3. Enter your API in `config.js`
+   ```js
+   const constants = {
+    const API_KEY = 'ENTER YOUR API'
+   }
+   ```
+   
+4. Go into the backend directory
+   ```sh
+   cd Simplify/backend
+   ```
+   
+5. Install NPM packages for the Express server
    ```sh
    npm install
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
+   
+6. Run the NPM development server
+   ```sh
+   npm run dev
    ```
+   
+7. Open another terminal window. Go into the frontend directory and install the npm dependencies. Then run the reaect app
+   ```sh
+   cd ../frontend
+   npm install
+   npm start
+   ```
+   
+ 8. Use the web app at [http://localhost:3000/](http://localhost:3000/). Enjoy!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+### Add and Change Text
+Enter your text in the input field, and add it to the site. From there, you have a few options to use with this text:
+* **Simplify**: Converts the text to make it less technical, changing it into layman terms and eliminating jargon
+* **Bullet Points**: Converts the text into a few bullet points, for concise reading
+* **Summarize**: Summarizes the text into a more succint paragraph
+* **Add to Linked Texts**: Adds this text to the linked selection, explained below
+* **Delete**: delete this text from the site
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+![image showing how to use texts](https://github.com/Quackens/Simplifier/blob/main/readme/simplifier-texts.png)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+### Linking Text
+Once you have added your choices of texts to the "Linked Texts" section, you may do the following:
+* **Generate Similarity Report**: Generates a paragraph summarizing the trends and similarities that the two texts have in common
+* **Search Query**: type in a search query, (e.g Asking "Trend for Tesla Stock" for the example SP500 reports) and getting an answer based only on the text information it is given
 
+![image showing how to link texts](https://github.com/Quackens/Simplifier/blob/main/readme/simplifier-link.png)
 
+### Results
+The results of each request is generated here. In this example, I asked "Trend for Tesla Stock" in the search query, after linking articles 2 and 3:
 
-<!-- ROADMAP -->
-## Roadmap
-
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
-
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+![image showing how to use results](https://github.com/Quackens/Simplifier/blob/main/readme/simplifier-result.png)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -136,9 +120,9 @@ See the [open issues](https://github.com/github_username/repo_name/issues) for a
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Jimmy Zhou - jameszho@andrew.cmu.edu
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/github_username/repo_name)
+Project Link: [https://github.com/Quackens/Simplifier](https://github.com/Quackens/Simplifier)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
