@@ -4,8 +4,9 @@ const cors = require('cors')
 
 app.use(cors())
 app.use(express.json())
+const initial = require('./initial.js')
 
-const OPENAI_KEY = "WITHHELD"
+const OPENAI_KEY = "[REDACTED]"
 const { Configuration, OpenAIApi } = require("openai")
 
 const configuration = new Configuration({
@@ -14,8 +15,7 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration)
 
-
-let texts = []
+let texts = initial.INITIAL_TEXT
 let reply = ''
 
 app.get('/texts', (request, response) => {
@@ -91,18 +91,27 @@ app.post('/summarize/:id', async (request, response) => {
   response.send(reply)
 })
 
+const idToString = (list) => {
+  // try {
+    const messages = list.map(c => texts.find(t => t.id === c))
+    const messagesFormatted = messages.map(m => '"' + m.content + '", ')
+    const last = messagesFormatted.length - 1
+    let m = messagesFormatted[last]
+    m = m.substring(0, m.length - 2) + "."
+    messagesFormatted[last] = m
+    const send = messagesFormatted.join('')
+
+    return send  
+}
+
 app.post('/connections', async (request, response) => {
   const connections = request.body.connections
-
-  const messages = connections.map(c => texts.find(t => t.id === c))
-  const messagesFormatted = messages.map(m => '"' + m.content + '", ')
-  const last = messagesFormatted.length - 1
-  let m = messagesFormatted[last]
-  m = m.substring(0, m.length - 2) + "."
-  messagesFormatted[last] = m
-  const send = messagesFormatted.join('')
-
-  console.log('Request to connect')
+  if (connections.length === 0) {
+    return response.send("Not enough connections")
+  }
+  console.log('Request for similarity')
+  const send = idToString(connections)
+  
   console.log(send)
 
   const prompt = "Find and Number what these articles agree on" 
@@ -120,6 +129,36 @@ app.post('/connections', async (request, response) => {
   response.send(reply)
   
 })
+
+app.post('/search', async (request, response) => {
+  const connections = request.body.connections
+  const query = request.body.search
+
+  console.log('Request for search query')  
+
+  if (connections.length === 0) {
+    return response.send("Not enough connections")
+  }
+  const articles = idToString(connections)
+  console.log(articles)
+
+  const init = "Use only the following articles to answer the question: " + articles
+
+  const chat_completion = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    temperature: 0.1,
+    messages: [
+      { role: "system", content: init},
+      { role: "user", content: query},
+    ]
+  })
+  console.log(chat_completion.data)
+  reply = chat_completion.data.choices[0].message.content
+  response.send(reply)
+
+})
+
+
 const generateId = () => {
   const maxId = texts.length > 0 ? Math.max(...texts.map(n => n.id)) : 0
   return maxId + 1
@@ -157,26 +196,9 @@ app.get('/test', async (request, response) => {
     console.log(chat_completion.data)
     response.send(chat_completion.data)
 
-    
-    // console.log(data.choices[0])
   })
 
 const PORT = 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
-
-
-
-/** 
-const data = {"id":"chatcmpl-7RACve96jTsMYxAHcZN3F1swFu0kO","object":
-"chat.completion","created":1686708449,"model":"gpt-3.5-turbo-0301",
-"usage":{"prompt_tokens":10,"completion_tokens":24,"total_tokens":34},
-"choices":[{"message":{"role":"assistant","content":"Hello there! As an 
-AI language model, I'm happy to communicate with you. How can I assist 
-you today?"},"finish_reason":"stop","index":0}]}
-
-app.get('/', (request, response) => {
-    response.send('<h1>Hello World!</h1> <a href="/api/notes">click</a>')
-  })
-*/
