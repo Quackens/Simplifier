@@ -5,8 +5,9 @@ const cors = require('cors')
 app.use(cors())
 app.use(express.json())
 const initial = require('./initial.js')
+const config = require('./config.js')
 
-const OPENAI_KEY = "[REDACTED]"
+const OPENAI_KEY = config.API_KEY
 const { Configuration, OpenAIApi } = require("openai")
 
 const configuration = new Configuration({
